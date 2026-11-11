@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lorem-Ipsum-Generator</title>
+<style>
+  body {
+    font-family: sans-serif;
+    max-width: 640px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    color: #000;
+  }
+  .controls {
+    margin-bottom: 1rem;
+  }
+  label {
+    margin-right: 0.5rem;
+  }
+  #count {
+    width: 4rem;
+  }
+  #output {
+    margin-top: 1rem;
+    border: 1px solid #000;
+    padding: 1rem;
+    line-height: 1.5;
+  }
+  #output p {
+    margin: 0 0 1rem;
+  }
+  #output p:last-child {
+    margin-bottom: 0;
+  }
+  #status {
+    margin-left: 0.5rem;
+  }
+</style>
+</head>
+<body>
+<h1>Lorem-Ipsum-Generator</h1>
+
+<div class="controls">
+  <label for="count">Anzahl Absätze:</label>
+  <input id="count" type="number" min="1" max="50" value="3">
+  <button id="generate">Generieren</button>
+  <button id="copy">Kopieren</button>
+  <span id="status"></span>
+</div>
+
+<div id="output"></div>
+
+<script>
+const WORDS = (
+  "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor " +
+  "incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud " +
+  "exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute " +
+  "irure in reprehenderit voluptate velit esse cillum eu fugiat nulla pariatur " +
+  "excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt " +
+  "mollit anim id est laborum"
+).split(" ");
+
+const countInput = document.getElementById("count");
+const output = document.getElementById("output");
+const status = document.getElementById("status");
+
+function randInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+function sentence() {
+  const len = 8 + randInt(10);
+  const words = [];
+  for (let i = 0; i < len; i++) {
+    let w = WORDS[randInt(WORDS.length)];
+    if (i === 0) w = w.charAt(0).toUpperCase() + w.slice(1);
+    words.push(w);
+  }
+  return words.join(" ") + ".";
+}
+
+function paragraph() {
+  const len = 3 + randInt(4);
+  const sentences = [];
+  for (let i = 0; i < len; i++) sentences.push(sentence());
+  return sentences.join(" ");
+}
+
+function generate() {
+  let n = parseInt(countInput.value, 10);
+  if (isNaN(n) || n < 1) n = 1;
+  if (n > 50) n = 50;
+  countInput.value = n;
+
+  const paras = [];
+  for (let i = 0; i < n; i++) paras.push(paragraph());
+
+  output.innerHTML = "";
+  for (const text of paras) {
+    const p = document.createElement("p");
+    p.textContent = text;
+    output.appendChild(p);
+  }
+  return paras.join("\n\n");
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (err) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  }
+}
+
+function flash(msg) {
+  status.textContent = msg;
+  clearTimeout(flash._t);
+  flash._t = setTimeout(() => (status.textContent = ""), 1600);
+}
+
+let currentText = "";
+
+document.getElementById("generate").addEventListener("click", () => {
+  currentText = generate();
+  flash("Generiert");
+});
+
+document.getElementById("copy").addEventListener("click", async () => {
+  if (!currentText) currentText = generate();
+  const ok = await copyText(currentText);
+  flash(ok ? "Kopiert" : "Kopieren fehlgeschlagen");
+});
+
+countInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("generate").click();
+});
+
+currentText = generate();
+</script>
+</body>
+</html>
