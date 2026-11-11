@@ -4,148 +4,416 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lorem-Ipsum-Generator</title>
+<meta name="description" content="Blindtext für Layouts und Entwürfe.">
 <style>
+  :root {
+    color-scheme: light dark;
+    --bg: #e9ebed;
+    --panel: #ffffff;
+    --border: #c3c7cb;
+    --text: #1c1e20;
+    --muted: #5f666c;
+    --btn: #f4f5f6;
+    --btn-border: #b6bbc0;
+    --primary: #23272b;
+    --primary-text: #ffffff;
+    --accent: #2a5db0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1c1e;
+      --panel: #232528;
+      --border: #3b3f43;
+      --text: #dcdedf;
+      --muted: #9aa1a7;
+      --btn: #2b2e31;
+      --btn-border: #464a4e;
+      --primary: #e6e8ea;
+      --primary-text: #1b1c1e;
+      --accent: #7aa2e3;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
   body {
-    font-family: sans-serif;
-    max-width: 640px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-    color: #000;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
-  .controls {
-    margin-bottom: 1rem;
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 18px 20px 0;
   }
-  label {
-    margin-right: 0.5rem;
+
+  /* Kopfzeile */
+
+  .topbar {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
   }
+
+  h1 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .topbar .desc {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  /* Aufteilung */
+
+  .workspace {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    flex: 1;
+    padding: 20px 0;
+  }
+
+  .panel {
+    position: sticky;
+    top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .row label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .stepper {
+    display: flex;
+    overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--btn-border);
+    border-radius: 3px;
+  }
+
+  .stepper button {
+    width: 30px;
+    padding: 0;
+    border: 0;
+    background: var(--btn);
+    color: inherit;
+    font: inherit;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .stepper button:first-child { border-right: 1px solid var(--btn-border); }
+  .stepper button:last-child { border-left: 1px solid var(--btn-border); }
+  .stepper button:hover { opacity: 0.7; }
+
   #count {
-    width: 4rem;
+    flex: 1;
+    min-width: 0;
+    padding: 6px 4px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    appearance: textfield;
+    -moz-appearance: textfield;
   }
+
+  #count::-webkit-outer-spin-button,
+  #count::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12.5px;
+    line-height: 1.35;
+    cursor: pointer;
+  }
+
+  .check input { margin: 2px 0 0; accent-color: var(--accent); }
+
+  .btn {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--btn-border);
+    border-radius: 3px;
+    background: var(--btn);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .btn:hover { opacity: 0.85; }
+  .btn:active { transform: translateY(1px); }
+
+  .btn-primary {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--primary-text);
+    font-weight: 550;
+  }
+
+  .hint {
+    margin: 0;
+    font: 11px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color: var(--muted);
+  }
+
+  /* Ausgabe */
+
+  .result {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .result-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
   #output {
-    margin-top: 1rem;
-    border: 1px solid #000;
-    padding: 1rem;
-    line-height: 1.5;
+    padding: 16px 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 15px;
+    line-height: 1.62;
   }
-  #output p {
-    margin: 0 0 1rem;
+
+  #output p { margin: 0 0 0.95em; }
+  #output p:last-child { margin-bottom: 0; }
+
+  /* Statuszeile */
+
+  .statusbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 16px;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    font: 11.5px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color: var(--muted);
   }
-  #output p:last-child {
-    margin-bottom: 0;
+
+  /* Fokus */
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
-  #status {
-    margin-left: 0.5rem;
+
+  @media (max-width: 720px) {
+    .workspace { grid-template-columns: 1fr; padding: 16px 0; }
+    .panel { position: static; }
   }
 </style>
 </head>
 <body>
-<h1>Lorem-Ipsum-Generator</h1>
+<div class="app">
 
-<div class="controls">
-  <label for="count">Anzahl Absätze:</label>
-  <input id="count" type="number" min="1" max="50" value="3">
-  <button id="generate">Generieren</button>
-  <button id="copy">Kopieren</button>
-  <span id="status"></span>
+  <header class="topbar">
+    <h1>Lorem-Ipsum-Generator</h1>
+    <span class="desc">Blindtext für Layouts und Entwürfe.</span>
+  </header>
+
+  <div class="workspace">
+
+    <form class="panel" id="controls">
+      <div class="row">
+        <label for="count">Absätze</label>
+        <div class="stepper">
+          <button type="button" data-step="-1" aria-label="Ein Absatz weniger">–</button>
+          <input id="count" type="number" min="1" max="50" value="3" inputmode="numeric">
+          <button type="button" data-step="1" aria-label="Ein Absatz mehr">+</button>
+        </div>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="classic" checked>
+        <span>Mit „Lorem ipsum“ beginnen</span>
+      </label>
+
+      <button class="btn btn-primary" type="submit">Generieren</button>
+      <button class="btn" type="button" id="copy">Kopieren</button>
+
+      <p class="hint">Strg+Enter: neu</p>
+    </form>
+
+    <section class="result">
+      <div class="result-head">
+        <span>Ausgabe</span>
+        <span id="stats">–</span>
+      </div>
+      <div id="output" aria-live="polite"></div>
+    </section>
+
+  </div>
+
+  <footer class="statusbar">
+    <span id="status">Bereit.</span>
+    <span>Läuft komplett im Browser – nichts wird gesendet.</span>
+  </footer>
+
 </div>
 
-<div id="output"></div>
-
 <script>
-const WORDS = (
-  "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor " +
-  "incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud " +
-  "exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute " +
-  "irure in reprehenderit voluptate velit esse cillum eu fugiat nulla pariatur " +
-  "excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt " +
-  "mollit anim id est laborum"
-).split(" ");
+  const WORDS = (
+    "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor " +
+    "incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud " +
+    "exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute " +
+    "irure in reprehenderit voluptate velit esse cillum eu fugiat nulla pariatur " +
+    "excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt " +
+    "mollit anim id est laborum"
+  ).split(" ");
 
-const countInput = document.getElementById("count");
-const output = document.getElementById("output");
-const status = document.getElementById("status");
+  const CLASSIC = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
-function randInt(max) {
-  return Math.floor(Math.random() * max);
-}
+  const form = document.getElementById("controls");
+  const countInput = document.getElementById("count");
+  const classicBox = document.getElementById("classic");
+  const output = document.getElementById("output");
+  const statsEl = document.getElementById("stats");
+  const statusEl = document.getElementById("status");
+  const nf = new Intl.NumberFormat("de-DE");
 
-function sentence() {
-  const len = 8 + randInt(10);
-  const words = [];
-  for (let i = 0; i < len; i++) {
-    let w = WORDS[randInt(WORDS.length)];
-    if (i === 0) w = w.charAt(0).toUpperCase() + w.slice(1);
-    words.push(w);
+  let currentText = "";
+
+  function randInt(max) {
+    return Math.floor(Math.random() * max);
   }
-  return words.join(" ") + ".";
-}
 
-function paragraph() {
-  const len = 3 + randInt(4);
-  const sentences = [];
-  for (let i = 0; i < len; i++) sentences.push(sentence());
-  return sentences.join(" ");
-}
-
-function generate() {
-  let n = parseInt(countInput.value, 10);
-  if (isNaN(n) || n < 1) n = 1;
-  if (n > 50) n = 50;
-  countInput.value = n;
-
-  const paras = [];
-  for (let i = 0; i < n; i++) paras.push(paragraph());
-
-  output.innerHTML = "";
-  for (const text of paras) {
-    const p = document.createElement("p");
-    p.textContent = text;
-    output.appendChild(p);
+  function sentence() {
+    const len = 8 + randInt(10);
+    const words = [];
+    for (let i = 0; i < len; i++) {
+      let w = WORDS[randInt(WORDS.length)];
+      if (i === 0) w = w.charAt(0).toUpperCase() + w.slice(1);
+      words.push(w);
+    }
+    return words.join(" ") + ".";
   }
-  return paras.join("\n\n");
-}
 
-async function copyText(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch (err) {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    const ok = document.execCommand("copy");
-    document.body.removeChild(ta);
-    return ok;
+  function paragraph(startWithClassic) {
+    const len = 3 + randInt(4);
+    const sentences = [];
+    if (startWithClassic) sentences.push(CLASSIC);
+    while (sentences.length < len) sentences.push(sentence());
+    return sentences.join(" ");
   }
-}
 
-function flash(msg) {
-  status.textContent = msg;
-  clearTimeout(flash._t);
-  flash._t = setTimeout(() => (status.textContent = ""), 1600);
-}
+  function readCount() {
+    let n = parseInt(countInput.value, 10);
+    if (isNaN(n) || n < 1) n = 1;
+    if (n > 50) n = 50;
+    countInput.value = n;
+    return n;
+  }
 
-let currentText = "";
+  function render() {
+    const n = readCount();
+    const paras = [];
 
-document.getElementById("generate").addEventListener("click", () => {
-  currentText = generate();
-  flash("Generiert");
-});
+    for (let i = 0; i < n; i++) {
+      paras.push(paragraph(i === 0 && classicBox.checked));
+    }
 
-document.getElementById("copy").addEventListener("click", async () => {
-  if (!currentText) currentText = generate();
-  const ok = await copyText(currentText);
-  flash(ok ? "Kopiert" : "Kopieren fehlgeschlagen");
-});
+    const frag = document.createDocumentFragment();
+    for (const text of paras) {
+      const p = document.createElement("p");
+      p.textContent = text;
+      frag.appendChild(p);
+    }
+    output.replaceChildren(frag);
 
-countInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") document.getElementById("generate").click();
-});
+    currentText = paras.join("\n\n");
 
-currentText = generate();
+    const words = currentText.split(/\s+/).filter(Boolean).length;
+    statsEl.textContent =
+      nf.format(paras.length) + (paras.length === 1 ? " Absatz" : " Absätze") + " · " +
+      nf.format(words) + (words === 1 ? " Wort" : " Wörter") + " · " +
+      nf.format(currentText.length) + " Zeichen";
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    render();
+    statusEl.textContent = "Neu erzeugt.";
+  });
+
+  form.querySelectorAll("[data-step]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const next = readCount() + Number(btn.dataset.step);
+      countInput.value = Math.min(50, Math.max(1, next));
+    });
+  });
+
+  document.getElementById("copy").addEventListener("click", async () => {
+    if (!currentText) render();
+    const ok = await copyText(currentText);
+    statusEl.textContent = ok ? "In die Zwischenablage kopiert." : "Kopieren nicht möglich.";
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      render();
+      statusEl.textContent = "Neu erzeugt.";
+    }
+  });
+
+  render();
 </script>
 </body>
 </html>
